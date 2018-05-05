@@ -24,7 +24,7 @@ passport.serializeUser((user, done) => {
   // user.id is the identifying piece of info
   // that will identify the user
   // i.e. unique identifier attached to
-  // the user's record
+  // each user's record
   done(null, user.id);
 });
 
@@ -116,7 +116,7 @@ passport.use(new GoogleStrategy({
   //console log the token gotten from the google callback
   (accessToken, refreshToken, profile, done) => {
     // check if user already exists
-    User.findOne({ googleId: profile.id })
+    User.findOne({ 'google.googleId' : profile.id })
       .then((existingUser) => {
         if (existingUser) {
           // we already have a record with the given profile ID
@@ -124,7 +124,9 @@ passport.use(new GoogleStrategy({
         } else {
           // we don't have a user record with this ID, make a new record
           // create new instance of User model class
-          new User ({ googleId: profile.id})
+          new User ({ 'google.googleId' : profile.id,
+            'google.email' : profile.emails[0].value,
+            'google.name' : profile.displayName })
           // save new user to the database
             .save()
             .then(user => done(null, user));

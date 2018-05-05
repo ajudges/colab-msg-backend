@@ -17,7 +17,11 @@ const userSchema = new Schema({
     password : String
   },
   // require unique google ID property, as string
-  googleId: String
+  google : {
+    googleId : String,
+    email : {},
+    name : String
+  }
 });
 
 // generating a hash
