@@ -1,0 +1,48 @@
+<html>
+  <head>
+      <title>CoLabMessenger</title>
+      <style>
+        h1, p
+        {
+          padding : 9px;
+        }
+        h1{
+          font-weight: 300;
+        }
+        input, textarea, button
+        {
+          border : 1px solid #BBB;
+          padding : 9px;
+          min-width : 250px;
+          border-radius : 9px;
+        }
+
+      </style>
+  </head>
+  <body>
+    <div class="container">
+      <% if (message.length > 0) { %>
+      <div class="alert alert-danger"><%= message %></div>
+    <% } %>
+
+        <div>
+        <center>
+        <form action='/signup' method="post">
+          <div class="form-group">
+            <h1>CoLabMessenger Signup</h1>
+            <p>
+              <input type="text" class="form-control" name="email" placeholder="Email" />
+            </p>
+          </div>
+          <div class="form-group">
+            <p><input type="password" class="form-control" name="password" placeholder="Password" /></p>
+            <p><button type="submit" class="btn btn-warning btn-lg">Send</button></p>
+          </div>
+      </form>
+      </center>
+
+    </div>
+  </body>
+</div>
+
+</html>

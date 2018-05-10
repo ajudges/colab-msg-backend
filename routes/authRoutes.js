@@ -1,11 +1,20 @@
 //import passport library
 const passport = require('passport');
 
+// import connect-flash library to flash messages
+const flash = require('connect-flash');
+
+require('../services/passport');
+
+//const jwt = require('jsonwebtoken');
+
 // import nodemailer module to send emails
 const nodemailer = require('nodemailer');
 
 // import unique ID generator
 const uniqid = require('uniqid');
+
+const Authentication = require('../controllers/authentication');
 
 // middleware for checking logged in user
 isLoggedIn = (req, res, next) => {
@@ -15,11 +24,18 @@ isLoggedIn = (req, res, next) => {
   res.redirect('/auth/google');
 }
 
-
+const requireAuth = passport.authenticate('jwt', { session : false });
+const requireSignin = passport.authenticate('local', { session : false });
 
 // create and export an arrow
 // function with the app object
 module.exports = app => {
+
+  app.get('/', requireAuth, (req, res) => {
+    res.send(req.user);
+  });
+
+/*
   // route handler to kick user into authentication
   // flow with google strategy
   app.get(
@@ -30,6 +46,13 @@ module.exports = app => {
       scope: ['profile', 'email']
     })
   );
+  */
+
+  app.post('/signin', requireSignin, Authentication.signin);
+
+  // process the sign up form
+  app.post('/signup', Authentication.signup);
+
 
   //log out
   app.get('/api/logout', (req, res) => {
@@ -38,7 +61,7 @@ module.exports = app => {
   });
 
   //generate invitation ID
-  app.get('/api/invite', isLoggedIn, (req, res) => {
+  app.get('/api/invite', requireAuth, (req, res) => {
     // generate invitation ID
     let shortID = uniqid(req.user.id);
     nodemailer.createTestAccount((err, account) => {
@@ -76,24 +99,49 @@ module.exports = app => {
     });
   })
 
+/*
   // let passport authenticate the user profile with google strategy
   // with the code in the callback url
-  app.get('/auth/google/callback', passport.authenticate('google'));
+  app.get('/auth/google/callback', passport.authenticate('google', {
+    //successRedirect : '/',
+    failureRedirect : '/',
+    session : false
+    }),
+    function (req, res) {
+      let token = Authentication.tokenForUser(req.user);
+      res.redirect("/api?token="+token);
+    }
+      );
+      */
 
-  // process the sign up form
-  app.post('/signup', passport.authenticate('local-signup', {
-    successRedirect : '/profile', // redirect to profile homepage
-    failureRedirect : '/signup', // redirect back to signup page
-    failureFlash : true // allow flash messages
-  }));
+  /*app.post('/signup', passport.authenticate('localsignup')
+);*/
 
-  // process the sign up form
-  app.post('/login', passport.authenticate('local-signup', {
-    successRedirect : '/profile', // redirect to profile homepage
-    failureRedirect : '/login', // redirect back to login page
-    failureFlash : true // allow flash messages
-  }));
+/*
+  // process the login up form
+  app.get('/login', (req, res, next) => {
+    passport.authenticate('local', {session:false}, (err, user,
+      info) => {
+        if (err||!user) {
+          return res.status(400).json({
+            message : 'Some is not right',
+            user : user
+          });
+        }
+        req.login(user, {session : false}, (err) => {
+          if (err) {
+            res.send(err);
+          }
 
+          // generate a signed json web token with the contents of
+          // user object and return it in the response
+
+          const token = jwt.sign(user, 'your_jwt_secret');
+          return res.json({user, token});
+        });
+      })(req,res);
+  });
+*/
   //testing to get current_user
   app.get('/api/current_user', isLoggedIn, (req, res) => {
     res.send(req.user);
