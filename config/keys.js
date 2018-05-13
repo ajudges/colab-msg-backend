@@ -2,5 +2,7 @@ module.exports = {
   googleClientID: '651451808046-t9f7odo066ipc31vbm9gs900847lasc0.apps.googleusercontent.com',
   googleClientSecret: 'Ok9n5vxB0h-JfY7fNLpsyKcd',
   mongoURI: 'mongodb://user:password@ds263639.mlab.com:63639/colab_msg_dev',
-  localSecret: 'frefn349f4r4rfe'
+  localSecret: 'frefn349f4r4rfe',
+  cloudinaryKey : '123317647364761',
+  cloudinarySecret : 'i1o_7TdgLvEjZ-ByWDOhsZGvRFo'
 }

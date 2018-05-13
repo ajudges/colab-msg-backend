@@ -6,23 +6,38 @@ const flash = require('connect-flash');
 
 require('../services/passport');
 
+const bodyParser = require('body-parser');
+
 //const jwt = require('jsonwebtoken');
+
+// import keys file
+const keys = require('../config/keys');
 
 // import nodemailer module to send emails
 const nodemailer = require('nodemailer');
+
+// import cloudinary for avatar hosting
+const cloudinary = require('cloudinary');
+
+// import multer middleware for uploading images
+const multer = require('multer');
 
 // import unique ID generator
 const uniqid = require('uniqid');
 
 const Authentication = require('../controllers/authentication');
+require('../controllers/authentication');
 
-// middleware for checking logged in user
-isLoggedIn = (req, res, next) => {
-  // if user is authenticated in the session, carry on
-  if (req.isAuthenticated()) return next();
-  // if they arent authenticated redirect to homepage
-  res.redirect('/auth/google');
-}
+//upload profile picture to multer local storage
+const upload = multer({ dest: './profilepics'});
+
+// configuring cloudinary
+cloudinary.config({
+  cloud_name: 'dfv8ccyvd',
+  api_key: keys.cloudinaryKey,
+  api_secret: keys.cloudinarySecret
+});
+
 
 const requireAuth = passport.authenticate('jwt', { session : false });
 const requireSignin = passport.authenticate('local', { session : false });
@@ -31,11 +46,11 @@ const requireSignin = passport.authenticate('local', { session : false });
 // function with the app object
 module.exports = app => {
 
-  app.get('/', requireAuth, (req, res) => {
+  app.get('/api/current_user', requireAuth, (req, res) => {
     res.send(req.user);
   });
 
-/*
+
   // route handler to kick user into authentication
   // flow with google strategy
   app.get(
@@ -46,7 +61,13 @@ module.exports = app => {
       scope: ['profile', 'email']
     })
   );
-  */
+
+  app.post('/imageUpload', upload.single('file'), function (req, res) {
+    cloudinary.uploader.upload(req.file.path, { public_id : 'lol' }, function (req, res) {
+      res.json({ profile: res.url });
+    })
+  });
+
 
   app.post('/signin', requireSignin, Authentication.signin);
 
@@ -75,7 +96,7 @@ module.exports = app => {
           pass : account.pass // generated ethereal password
         }
       });
-      let clientUrl = 'https://localhost:5000/invite/'+shortID;
+      let clientUrl = 'https://agile-mesa-76503.herokuapp.com/'+shortID;
       // setup email data
       let mailOptions = {
         from : '"'+req.user.google.name+'"' + ' <'+req.user.google.email + '>', //sender address
@@ -99,52 +120,16 @@ module.exports = app => {
     });
   })
 
-/*
+
   // let passport authenticate the user profile with google strategy
   // with the code in the callback url
   app.get('/auth/google/callback', passport.authenticate('google', {
     //successRedirect : '/',
     failureRedirect : '/',
     session : false
-    }),
-    function (req, res) {
-      let token = Authentication.tokenForUser(req.user);
-      res.redirect("/api?token="+token);
-    }
-      );
-      */
-
-  /*app.post('/signup', passport.authenticate('localsignup')
-);*/
-
-/*
-  // process the login up form
-  app.get('/login', (req, res, next) => {
-    passport.authenticate('local', {session:false}, (err, user,
-      info) => {
-        if (err||!user) {
-          return res.status(400).json({
-            message : 'Some is not right',
-            user : user
-          });
-        }
-        req.login(user, {session : false}, (err) => {
-          if (err) {
-            res.send(err);
-          }
-
-          // generate a signed json web token with the contents of
-          // user object and return it in the response
-
-          const token = jwt.sign(user, 'your_jwt_secret');
-          return res.json({user, token});
-        });
-      })(req,res);
-  });
-*/
-  //testing to get current_user
-  app.get('/api/current_user', isLoggedIn, (req, res) => {
-    res.send(req.user);
-  });
+  }), (req, res)=> {
+    res.json({ token : tokenForUser(req.user)});
+  }
+    );
 
 };

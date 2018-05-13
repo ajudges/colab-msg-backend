@@ -89,12 +89,11 @@ passport.use(new GoogleStrategy({
   //console log the token gotten from the google callback
   (accessToken, refreshToken, profile, done) => {
     // check if user already exists
-    User.findOne({ 'google.googleId' : profile.id })
-      .then((existingUser) => { (req, res) => {
+    User.findOne({ $or: [{'google.googleId' : profile.id}, {'local.email' : profile.emails[0].value}]  })
+      .then((existingUser) => {
         if (existingUser) {
           // we already have a record with the given profile ID
           done(null, existingUser);
-          //res.json({ token : Authentication.tokenForUser(req.user)});
         } else {
           // we don't have a user record with this ID, make a new record
           // create new instance of User model class
@@ -105,7 +104,7 @@ passport.use(new GoogleStrategy({
             .save()
             .then(user => done(null, user));
         }
-      }
+
 
       });
 

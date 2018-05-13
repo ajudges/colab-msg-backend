@@ -8,6 +8,11 @@ const http = require('http');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 
+// import multer middleware for uploading images
+const multer = require('multer');
+
+// import cloudinary for avatar hosting
+const cloudinary = require('cloudinary');
 
 //enable access to cookies
 const cookieSession = require('cookie-session');
@@ -17,6 +22,9 @@ const passport = require('passport');
 
 // import keys file
 const keys = require('./config/keys');
+
+// importing cors for cross domain authentication
+const cors = require('cors');
 
 // import User file that contains the mongoose
 // User model
@@ -29,44 +37,32 @@ require('./services/passport');
 // import connect-flash library to flash messages
 const flash = require('connect-flash');
 
-
-
-
 // connect to database
 mongoose.connect(keys.mongoURI);
 
 // define the app object
 const app = express();
 
+
 app.use(morgan('combined'));
-app.use(bodyParser.json({ type: '*/*'}));
+//app.use(bodyParser.json({ type: '*/*'}));
 
 // Use app - pre set
 app.set('view engine', 'ejs');
-/*
-// middleware to pre-process cookies
-app.use(
-  //pass in configuration object for cookies
-  cookieSession({
-    // let cookies last 10 days before expiring
-    maxAge: 10 * 24 * 60 * 60 * 1000,
-    // encrypt cookie keys
-    keys: [keys.cookieKey]
-  })
-);
-*/
-// tell passport to make use of cookies
-// to handle authentications
-//app.use(passport.initialize());
-//app.use(passport.session());
 
 app.use(flash());
+
+app.use(cors());
+
+
 
 // call authRoutes file with the app object
 require('./routes/authRoutes')(app);
 require('./router')(app);
 
-const server = http.createServer(app);
+
+
+//const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT);
+app.listen(PORT);

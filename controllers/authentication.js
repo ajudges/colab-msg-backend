@@ -38,7 +38,7 @@ exports.signup = (req, res, next) => {
     return res.status(422).send({ error : 'Provide email and password'});
   }
   // see if a user with the given user exist
-  User.findOne({ 'local.email' : email }, (err, existingUser) => {
+  User.findOne({ $or: [{'local.email' : email}, {'google.email' : email}] }, (err, existingUser) => {
     if (err) { return next (err);}
 
   // if a user exist, return an error
