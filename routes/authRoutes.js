@@ -1,3 +1,4 @@
+
 //import passport library
 const passport = require('passport');
 
@@ -6,7 +7,13 @@ const flash = require('connect-flash');
 
 require('../services/passport');
 
+// import mongoose library
+const mongoose = require('mongoose');
+const User = mongoose.model('users');
+
 const bodyParser = require('body-parser');
+// create application/json parser
+const jsonParser = bodyParser.json()
 
 //const jwt = require('jsonwebtoken');
 
@@ -16,11 +23,17 @@ const keys = require('../config/keys');
 // import nodemailer module to send emails
 const nodemailer = require('nodemailer');
 
+// import multer middleware for uploading images
+const multer = require('multer');
+//upload profile picture to multer local storage
+const upload = multer({ dest: './profilepics', rename : (fieldname, filename) => {
+  return filename = req.user.id;
+} });
+
+
 // import cloudinary for avatar hosting
 const cloudinary = require('cloudinary');
 
-// import multer middleware for uploading images
-const multer = require('multer');
 
 // import unique ID generator
 const uniqid = require('uniqid');
@@ -28,8 +41,13 @@ const uniqid = require('uniqid');
 const Authentication = require('../controllers/authentication');
 require('../controllers/authentication');
 
-//upload profile picture to multer local storage
-const upload = multer({ dest: './profilepics'});
+
+// configuring cloudinary
+cloudinary.config({
+  cloud_name: 'dfv8ccyvd',
+  api_key: keys.cloudinaryKey,
+  api_secret: keys.cloudinarySecret
+});
 
 
 
@@ -39,6 +57,27 @@ const requireSignin = passport.authenticate('local', { session : false });
 // create and export an arrow
 // function with the app object
 module.exports = app => {
+
+  app.post('/imageUpload', requireAuth, upload.single('file'), function (req, res, done) {
+    cloudinary.v2.uploader.upload(req.file.path, { public_id : req.user.id }, function (error, result) {
+      console.log(result.url);
+      (User.findOne({ $and : [{ _id : req.user.id}, {'local.email' : { $exists: true } }]} ))
+        .then((letUser) => {
+          if (letUser) {
+            User.update({ _id : req.user.id },
+              { $set: {'local.profilePicture' : result.url}})
+              .then(null, done);
+          } else {
+          User.update({ _id : req.user.id },
+            { $set: {'google.profilePicture' : result.url}})
+            .then(null, done);
+        }
+        }
+
+      );
+      console.log('success');
+    });
+    });
 
   app.get('/api/current_user', requireAuth, (req, res) => {
     res.send(req.user);
@@ -56,17 +95,11 @@ module.exports = app => {
     })
   );
 
-  app.post('/imageUpload', upload.single('file'), function (req, res) {
-    cloudinary.uploader.upload(req.file.path, { public_id : 'lol' }, function (req, res) {
-      res.json({ profile: res.url });
-    })
-  });
 
-
-  app.post('/signin', requireSignin, Authentication.signin);
+  app.post('/signin', jsonParser, requireSignin, Authentication.signin);
 
   // process the sign up form
-  app.post('/signup', Authentication.signup);
+  app.post('/signup', jsonParser,  Authentication.signup);
 
 
   //log out

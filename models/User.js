@@ -15,13 +15,15 @@ const userSchema = new Schema({
   local : {
     email : { type : String, unique : true , lowercase : true },
     name: String,
-    password : String
+    password : String,
+    profilePicture : String
   },
   // require unique google ID property, as string
   google : {
     googleId : String,
     email : {},
-    name : String
+    name : String,
+    profilePicture : String
   }
 });
 

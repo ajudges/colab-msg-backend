@@ -33,6 +33,7 @@ exports.signup = (req, res, next) => {
 
   const email = req.body.email;
   const password = req.body.password;
+  const name = req.body.name;
 
   if (!email || !password) {
     return res.status(422).send({ error : 'Provide email and password'});
@@ -49,7 +50,9 @@ exports.signup = (req, res, next) => {
   // generating a hash
   user = new User ({
     'local.email' : email,
-    'local.password' : password
+    'local.password' : password,
+    'local.name' : name,
+    'local.profilePicture' : ''
   });
 
 

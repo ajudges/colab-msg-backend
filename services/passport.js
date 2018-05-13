@@ -99,7 +99,8 @@ passport.use(new GoogleStrategy({
           // create new instance of User model class
           new User ({ 'google.googleId' : profile.id,
             'google.email' : profile.emails[0].value,
-            'google.name' : profile.displayName })
+            'google.name' : profile.displayName,
+            'google.profilePicture' : 'https://res.cloudinary.com/dfv8ccyvd/image/upload/v1526195102/5af7c8896a5d4551d5cad369.jpg'})
           // save new user to the database
             .save()
             .then(user => done(null, user));

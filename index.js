@@ -4,18 +4,16 @@ const express = require('express');
 // import mongoose library to interact with mongo
 const mongoose = require('mongoose');
 
+
+
 const http = require('http');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 
-// import multer middleware for uploading images
-const multer = require('multer');
-
 // import cloudinary for avatar hosting
 const cloudinary = require('cloudinary');
 
-//enable access to cookies
-const cookieSession = require('cookie-session');
+
 
 // import passport to make use of the cookies
 const passport = require('passport');
@@ -43,16 +41,11 @@ mongoose.connect(keys.mongoURI);
 // define the app object
 const app = express();
 
-// configuring cloudinary
-cloudinary.config({
-  cloud_name: 'dfv8ccyvd',
-  api_key: keys.cloudinaryKey,
-  api_secret: keys.cloudinarySecret
-});
-
 
 app.use(morgan('combined'));
-app.use(bodyParser.json({ type: '*/*'}));
+//app.use(bodyParser.urlencoded({ limit : '50mb', extended : true, parameterLimit : 500000 }));
+//app.use(bodyParser.json({ type : '*/*' }));
+
 
 // Use app - pre set
 app.set('view engine', 'ejs');
@@ -60,8 +53,6 @@ app.set('view engine', 'ejs');
 app.use(flash());
 
 app.use(cors());
-
-
 
 // call authRoutes file with the app object
 require('./routes/authRoutes')(app);
