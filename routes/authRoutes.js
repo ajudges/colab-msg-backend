@@ -31,12 +31,6 @@ require('../controllers/authentication');
 //upload profile picture to multer local storage
 const upload = multer({ dest: './profilepics'});
 
-// configuring cloudinary
-cloudinary.config({
-  cloud_name: 'dfv8ccyvd',
-  api_key: keys.cloudinaryKey,
-  api_secret: keys.cloudinarySecret
-});
 
 
 const requireAuth = passport.authenticate('jwt', { session : false });

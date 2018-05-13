@@ -43,9 +43,16 @@ mongoose.connect(keys.mongoURI);
 // define the app object
 const app = express();
 
+// configuring cloudinary
+cloudinary.config({
+  cloud_name: 'dfv8ccyvd',
+  api_key: keys.cloudinaryKey,
+  api_secret: keys.cloudinarySecret
+});
+
 
 app.use(morgan('combined'));
-//app.use(bodyParser.json({ type: '*/*'}));
+app.use(bodyParser.json({ type: '*/*'}));
 
 // Use app - pre set
 app.set('view engine', 'ejs');
@@ -62,7 +69,7 @@ require('./router')(app);
 
 
 
-//const server = http.createServer(app);
+const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT);
+server.listen(PORT);
