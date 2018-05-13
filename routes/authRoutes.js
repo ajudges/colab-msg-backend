@@ -75,7 +75,7 @@ module.exports = app => {
         }
 
       );
-      res.send({token : 'Picture Update Completed'});
+      res.send({ imageUpdate : 'Picture Update Completed'});
     });
     });
 
