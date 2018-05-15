@@ -60,22 +60,13 @@ module.exports = app => {
 
   app.post('/imageUpload', requireAuth, upload.single('file'), function (req, res, done) {
     cloudinary.v2.uploader.upload(req.file.path, { public_id : req.user.id }, function (error, result) {
-      console.log(result.url);
-      (User.findOne({ $and : [{ _id : req.user.id}, {'local.email' : { $exists: true } }]} ))
-        .then((letUser) => {
-          if (letUser) {
-            User.update({ _id : req.user.id },
-              { $set: {'local.profilePicture' : result.url}})
-              .then(null, done);
-          } else {
-          User.update({ _id : req.user.id },
-            { $set: {'google.profilePicture' : result.url}})
-            .then(null, done);
-        }
-        }
-
-      );
-      res.send({ imageUpdate : 'Picture Update Completed'});
+      try {
+        (User.updateOne({ _id : req.user.id}, { $set : {'local.profilePicture' : result.url}}))
+          .then(null, done);
+        res.send({ imageUpdate : 'Picture Update Completed'});
+      } catch (e) {
+        res.send(e);
+      }
     });
     });
 
@@ -95,6 +86,16 @@ module.exports = app => {
     })
   );
 
+  app.post('/api/all_users', requireAuth, (req, res, next) => {
+    User.find({}, { _id : 0,
+      'local.email' : 1,
+      'local.username' : 1
+    }, (err, cursor) => {
+        if (err) { return next (err);}
+        else {res.json(cursor);}
+      }
+    )
+  });
 
   app.post('/signin', jsonParser, requireSignin, Authentication.signin);
 
@@ -109,7 +110,8 @@ module.exports = app => {
   });
 
   //generate invitation ID
-  app.get('/api/invite', requireAuth, (req, res) => {
+  app.post('/api/invite', jsonParser, requireAuth, (req, res) => {
+    const _to = req.body.emailInvite;
     // generate invitation ID
     let shortID = uniqid(req.user.id);
     nodemailer.createTestAccount((err, account) => {
@@ -124,10 +126,11 @@ module.exports = app => {
         }
       });
       let clientUrl = 'https://agile-mesa-76503.herokuapp.com/'+shortID;
+
       // setup email data
       let mailOptions = {
-        from : '"'+req.user.google.name+'"' + ' <'+req.user.google.email + '>', //sender address
-        to : 'esiotltd@gmail.com', //receiver(s) address
+        from : '"'+req.user.local.name+'"' + ' <'+req.user.local.email+ '>', //sender address
+        to : _to, //receiver(s) address
         subject : 'Invitation to CoLab Messenger', //subject line
         text : 'Hello, your invitation link is below ', //plain text
         html : clientUrl

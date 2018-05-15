@@ -34,24 +34,33 @@ exports.signup = (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   const name = req.body.name;
+  const username = req.body.username;
 
-  if (!email || !password) {
-    return res.status(422).send({ error : 'Provide email and password'});
+  if (!email || !password||!username) {
+    return res.status(422).send({ error : 'Provide email, password and username'});
   }
   // see if a user with the given user exist
-  User.findOne({ $or: [{'local.email' : email}, {'google.email' : email}] }, (err, existingUser) => {
+  User.findOne({'local.email' : email}, (err, existingUser) => {
     if (err) { return next (err);}
 
   // if a user exist, return an error
   if (existingUser) {
     return res.status(422).send({ error : 'Email is in use'});
   }
+
+  // if user doesnt exist but identical username exist
+  // inform to change username
+  if (User.findOne({'local.username' : username })) {
+    return res.status(422).send({ error : 'Username is in use'})
+  }
+
   // if a user doesnt exist, create and save a record
   // generating a hash
   user = new User ({
     'local.email' : email,
     'local.password' : password,
     'local.name' : name,
+    'local.username' : username,
     'local.profilePicture' : ''
   });
 

@@ -16,13 +16,9 @@ const userSchema = new Schema({
     email : { type : String, unique : true , lowercase : true },
     name: String,
     password : String,
-    profilePicture : String
-  },
-  // require unique google ID property, as string
-  google : {
+    username : String,
+    // require unique google ID property, as string
     googleId : String,
-    email : {},
-    name : String,
     profilePicture : String
   }
 });

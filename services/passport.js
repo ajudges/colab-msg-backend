@@ -88,8 +88,9 @@ passport.use(new GoogleStrategy({
 },
   //console log the token gotten from the google callback
   (accessToken, refreshToken, profile, done) => {
+    console.log(profile);
     // check if user already exists
-    User.findOne({ $or: [{'google.googleId' : profile.id}, {'local.email' : profile.emails[0].value}]  })
+    User.findOne({ $or: [{'local.googleId' : profile.id}, {'local.email' : profile.emails[0].value}]  })
       .then((existingUser) => {
         if (existingUser) {
           // we already have a record with the given profile ID
@@ -97,10 +98,11 @@ passport.use(new GoogleStrategy({
         } else {
           // we don't have a user record with this ID, make a new record
           // create new instance of User model class
-          new User ({ 'google.googleId' : profile.id,
-            'google.email' : profile.emails[0].value,
-            'google.name' : profile.displayName,
-            'google.profilePicture' : 'https://res.cloudinary.com/dfv8ccyvd/image/upload/v1526195102/5af7c8896a5d4551d5cad369.jpg'})
+          new User ({ 'local.googleId' : profile.id,
+            'local.email' : profile.emails[0].value,
+            'local.username' : profile.name.givenName, //profile.name.familyName to add last name
+            'local.name' : profile.displayName,
+            'local.profilePicture' : ''})
           // save new user to the database
             .save()
             .then(user => done(null, user));
