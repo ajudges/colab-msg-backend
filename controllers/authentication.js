@@ -61,7 +61,7 @@ exports.signup = (req, res, next) => {
     'local.password' : password,
     'local.name' : name,
     'local.username' : username,
-    'local.profilePicture' : ''
+    'local.profilePicture' : '/images/user.jpg'
   });
 
 

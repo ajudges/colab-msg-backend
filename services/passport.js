@@ -102,7 +102,7 @@ passport.use(new GoogleStrategy({
             'local.email' : profile.emails[0].value,
             'local.username' : profile.name.givenName, //profile.name.familyName to add last name
             'local.name' : profile.displayName,
-            'local.profilePicture' : ''})
+            'local.profilePicture' : '/images/user.jpg'})
           // save new user to the database
             .save()
             .then(user => done(null, user));
