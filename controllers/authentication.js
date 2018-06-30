@@ -39,20 +39,27 @@ exports.signup = (req, res, next) => {
   if (!email || !password||!username) {
     return res.status(422).send({ error : 'Provide email, password and username'});
   }
+
+
   // see if a user with the given user exist
-  User.findOne({'local.email' : email}, (err, existingUser) => {
+  User.findOne({$or: [{'local.email' : email},{'local.username' : username}]}, (err, existingUser) => {
     if (err) { return next (err);}
 
-  // if a user exist, return an error
+    console.log(existingUser);
+
+
   if (existingUser) {
-    return res.status(422).send({ error : 'Email is in use'});
+    // if a user with the email exists, return an error
+    if(existingUser.local.email == email) {
+      return res.status(422).send({ error : 'Email is in use'});
+    }
+
+    // if a user with the username exists, return an error
+    if (existingUser.local.username == username ) {
+      return res.status(422).send({ error : 'Username is in use'});
+    }
   }
 
-  // if user doesnt exist but identical username exist
-  // inform to change username
-  if (User.findOne({'local.username' : username })) {
-    return res.status(422).send({ error : 'Username is in use'})
-  }
 
   // if a user doesnt exist, create and save a record
   // generating a hash

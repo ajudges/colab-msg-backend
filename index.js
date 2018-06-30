@@ -4,10 +4,9 @@ const express = require('express');
 // import mongoose library to interact with mongo
 const mongoose = require('mongoose');
 
-
-
 const http = require('http');
 const bodyParser = require('body-parser');
+// console log events happening
 const morgan = require('morgan');
 
 // import cloudinary for avatar hosting

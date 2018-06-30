@@ -47,16 +47,6 @@ userSchema.methods.comparePassword = function (candidatePassword, callback) {
   });
 }
 
-/*
-userSchema.methods.generateHash = function(password) {
-    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
-};
-
-// checking if password is valid
-userSchema.methods.validPassword = function(password) {
-    return bcrypt.compareSync(password, this.local.password);
-};
-*/
 
 // create user class
 // first argument is the name of the collection
