@@ -71,7 +71,7 @@ module.exports = app => {
     });
 
   app.get('/api/current_user', requireAuth, (req, res) => {
-    res.send(req.user);
+    res.send(req.user.local);
   });
 
 
